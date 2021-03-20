@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -v -x
 
 # useful for debugging:
 #export BAZEL_BUILD_OPTS="--logging=6 --subcommands --verbose_failures"
@@ -13,8 +13,7 @@ export BAZEL_BUILD_OPTS=""
 # the TMPDIR environment variable. It might be necessary to pass
 # "--materialize_param_files" to Bazel.
 
-if [[ "${target_platform}" == osx-* ]]; then
-  if [[ "${target_platform}" == "osx-64" ]]; then
+if [ $(uname) == Darwin ]; then
     if [[ $(basename $CONDA_BUILD_SYSROOT) != "MacOSX10.12.sdk" ]]; then
       echo "WARNING: You asked me to use $CONDA_BUILD_SYSROOT as the MacOS SDK"
       echo "         But because of the use of Objective-C Generics we need at"
@@ -25,10 +24,9 @@ if [[ "${target_platform}" == osx-* ]]; then
         exit 1
       fi
     fi
-  fi
-  ./compile.sh
-  mkdir -p $PREFIX/bin/
-  mv output/bazel $PREFIX/bin
+    ./compile.sh
+    mkdir -p $PREFIX/bin/
+    mv output/bazel $PREFIX/bin
 else
     # The bazel binary is a self extracting zip file which contains binaries
     # and libraries, some of which are linked to libstdc++.
